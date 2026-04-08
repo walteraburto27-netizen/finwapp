@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0c0c0e">
-<title>FinW v2.5</title>
-<meta name="app-version" content="v2.5" data-build="08/04/2026 02:50">
+<title>FinW v2.6</title>
+<meta name="app-version" content="v2.6" data-build="08/04/2026 02:50">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -696,7 +696,7 @@ input[type=file]{display:none}
 <body>
 
 <header class="hdr">
-  <div class="logo" onclick="showVersion()" style="cursor:pointer"><div class="logo-dot"></div>FinW <span style="font-size:10px;font-weight:400;color:var(--tx3);margin-left:4px;letter-spacing:0">v2.5</span></div>
+  <div class="logo" onclick="showVersion()" style="cursor:pointer"><div class="logo-dot"></div>FinW <span style="font-size:10px;font-weight:400;color:var(--tx3);margin-left:4px;letter-spacing:0">v2.6</span></div>
   <div class="hdr-r">
     <button class="hide-btn" onclick="toggleHide()" id="hideBtn" title="Ocultar saldos">👁</button>
     <button class="btn btn-sm btn-s" onclick="openProvModal()">+ Prov.</button>
@@ -706,7 +706,7 @@ input[type=file]{display:none}
 
 <!-- PERIOD SELECTOR BAR -->
 <div id="versionToast" style="position:fixed;top:60px;left:50%;transform:translateX(-50%);background:var(--s3);border:1px solid var(--bd2);border-radius:8px;padding:8px 16px;font-size:12px;color:var(--tx2);z-index:300;transition:opacity 0.3s;opacity:0;pointer-events:none;white-space:nowrap">
-  FinW v2.5 · Build 08/04/2026 02:50
+  FinW v2.6 · Build 08/04/2026 02:50
 </div>
 <div class="period-bar" id="periodBar">
   <span class="period-label">Período</span>
@@ -993,14 +993,28 @@ input[type=file]{display:none}
 
 <div class="mo" id="catModal">
   <div class="md"><div class="md-h"></div>
-    <div class="md-hdr"><div class="md-t">Editar categoría</div><button class="md-x" onclick="closeModal('catModal')">×</button></div>
+    <div class="md-hdr"><div class="md-t">Cambiar categoría</div><button class="md-x" onclick="closeModal('catModal')">×</button></div>
     <div class="md-body">
-      <div id="catModalDesc" style="font-size:13px;color:var(--tx2);margin-bottom:13px;font-weight:500"></div>
-      <div class="fg"><label class="fl">Categoría</label><select class="fs" id="catSelect" onchange="updateSubcat('catSelect','catSubselect')"></select></div>
-      <div class="fg"><label class="fl">Subcategoría</label><select class="fs" id="catSubselect"></select></div>
-      <div class="notice n-i" style="font-size:11px;margin-top:6px">La app recordará esta clasificación automáticamente.</div>
+      <div id="catModalDesc" style="font-size:13px;color:var(--tx2);margin-bottom:13px;font-weight:500;padding:10px 12px;background:var(--s2);border-radius:8px;border-left:3px solid var(--acc)"></div>
+      <div class="fg">
+        <label class="fl">Categoría</label>
+        <select class="fs" id="catSelect" onchange="updateSubcat('catSelect','catSubselect')"></select>
+      </div>
+      <div class="fg">
+        <label class="fl">Subcategoría</label>
+        <select class="fs" id="catSubselect"></select>
+      </div>
+      <div style="margin-top:4px;padding:10px 12px;background:var(--acc-bg);border:1px solid rgba(123,104,238,0.2);border-radius:10px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+          <input type="checkbox" id="applyToSimilar" checked style="accent-color:var(--acc);width:16px;height:16px">
+          <span><strong>Aplicar a movimientos similares</strong><br><span style="font-size:11px;color:var(--tx2)">La IA busca todas las coincidencias y las actualiza automáticamente</span></span>
+        </label>
+      </div>
     </div>
-    <div class="md-foot"><button class="btn btn-s" onclick="closeModal('catModal')">Cancelar</button><button class="btn btn-p" onclick="saveCat()">Guardar</button></div>
+    <div class="md-foot">
+      <button class="btn btn-s" onclick="closeModal('catModal')">Cancelar</button>
+      <button class="btn btn-p" onclick="saveCat()">Guardar</button>
+    </div>
   </div>
 </div>
 
@@ -1021,19 +1035,37 @@ input[type=file]{display:none}
   <div class="md">
     <div class="md-h"></div>
     <div class="md-hdr">
-      <div class="md-t">Editar categorías</div>
+      <div class="md-t">Editor de categorías</div>
       <button class="md-x" onclick="closeModal('catEditorModal')">×</button>
     </div>
+    <div class="md-body" style="padding:16px">
+      <div id="catEditorList" style="display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow-y:auto"></div>
+    </div>
+    <div class="md-foot">
+      <button class="btn btn-s" onclick="closeModal('catEditorModal')">Cerrar</button>
+      <button class="btn btn-p" onclick="saveCatEditor()">Guardar todo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Subcategory Editor -->
+<div class="mo" id="subcatModal">
+  <div class="md"><div class="md-h"></div>
+    <div class="md-hdr">
+      <div class="md-t" id="subcatModalTitle">Subcategorías</div>
+      <button class="md-x" onclick="closeModal('subcatModal')">×</button>
+    </div>
     <div class="md-body">
-      <p style="font-size:12px;color:var(--tx2);margin-bottom:14px">Personaliza nombre y emoji de cada categoría. Los cambios se aplican a todos tus movimientos.</p>
-      <div id="catEditorList" style="display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto"></div>
-      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bd)">
-        <button class="btn btn-s btn-sm" onclick="addCustomCat()">+ Nueva categoría</button>
+      <p style="font-size:12px;color:var(--tx2);margin-bottom:12px">Edita, agrega o elimina subcategorías.</p>
+      <div id="subcatList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px"></div>
+      <div style="display:flex;gap:8px">
+        <input class="fi" id="newSubcatInput" placeholder="Nueva subcategoría..." style="flex:1;font-size:13px">
+        <button class="btn btn-p btn-sm" onclick="addSubcat()">+</button>
       </div>
     </div>
     <div class="md-foot">
-      <button class="btn btn-s" onclick="closeModal('catEditorModal')">Cancelar</button>
-      <button class="btn btn-p" onclick="saveCatEditor()">Guardar cambios</button>
+      <button class="btn btn-s" onclick="closeModal('subcatModal')">Cancelar</button>
+      <button class="btn btn-p" onclick="saveSubcats()">Guardar</button>
     </div>
   </div>
 </div>
@@ -2003,17 +2035,83 @@ function saveProv(){
   state.provisions.push({id:uid(),name,amount,date,type,cat,recurr,month});
   save();renderAll();closeModal('provModal');
 }
-function saveCat(){
-  const cat=document.getElementById('catSelect').value;
-  const subcat=document.getElementById('catSubselect').value;
-  const tx=state.transactions.find(t=>t.id===editCatId);
-  if(tx){
-    const key=tx.desc.toLowerCase().split(' ').slice(0,3).join(' ');
-    state.catRules[key]={category:cat,subcat};
-    tx.category=cat;tx.subcat=subcat;
-    save();renderAll();
-  }
+async function saveCat(){
+  const cat = document.getElementById('catSelect').value;
+  const subcat = document.getElementById('catSubselect').value;
+  const applyToSimilar = document.getElementById('applyToSimilar')?.checked;
+  const tx = state.transactions.find(t => t.id === editCatId);
+  if (!tx) { closeModal('catModal'); return; }
+
+  // Save rule
+  const key = tx.desc.toLowerCase().split(' ').slice(0,3).join(' ');
+  state.catRules[key] = {category: cat, subcat};
+  tx.category = cat;
+  tx.subcat = subcat;
+
   closeModal('catModal');
+  save();
+  renderAll();
+
+  if (!applyToSimilar) return;
+
+  // Find similar transactions
+  const descWords = tx.desc.toLowerCase().split(' ').filter(w => w.length > 2).slice(0,3);
+  const similar = state.transactions.filter(t =>
+    t.id !== tx.id &&
+    t.category !== cat &&
+    descWords.some(w => t.desc.toLowerCase().includes(w))
+  );
+
+  if (similar.length === 0) return;
+
+  // Show mini toast
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--s2);border:1px solid var(--bd2);border-radius:10px;padding:10px 16px;font-size:12px;color:var(--tx2);z-index:400;white-space:nowrap';
+  toast.innerHTML = '<div class="spin" style="display:inline-block;margin-right:8px"></div>Buscando coincidencias...';
+  document.body.appendChild(toast);
+
+  try {
+    // Ask AI to confirm which ones are really similar
+    const prompt = 'Eres un clasificador financiero. El usuario cambió "' + tx.desc + '" a categoría "' + cat + '".\nDe estas transacciones, ¿cuáles son del mismo comercio/concepto y deberían tener la misma categoría?\n' +
+      JSON.stringify(similar.map(t => ({id:t.id, desc:t.desc}))) +
+      '\nResponde SOLO JSON array con los IDs que SÍ deben cambiarse: ["id1","id2",...]';
+
+    let toUpdate = similar.map(t => t.id); // default: update all similar
+    try {
+      const res = await fetch('/api/chat', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({model:'claude-sonnet-4-20250514', max_tokens:300, messages:[{role:'user',content:prompt}]})
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const parsed = JSON.parse((data.content?.[0]?.text||'[]').replace(/```json|```/g,'').trim());
+        if (Array.isArray(parsed) && parsed.length > 0) toUpdate = parsed;
+      }
+    } catch(e) {
+      // Use keyword matching as fallback
+      console.log('AI similarity fallback');
+    }
+
+    let updated = 0;
+    state.transactions.forEach(t => {
+      if (toUpdate.includes(t.id)) { t.category = cat; t.subcat = subcat; updated++; }
+    });
+
+    // Also update catRules for all matching keywords
+    similar.filter(t => toUpdate.includes(t.id)).forEach(t => {
+      const k = t.desc.toLowerCase().split(' ').slice(0,3).join(' ');
+      state.catRules[k] = {category: cat, subcat};
+    });
+
+    save(); renderAll();
+    toast.innerHTML = '✓ ' + updated + ' movimientos similares actualizados → ' + (CATS[cat]?.e||'') + ' ' + (CATS[cat]?.l||cat);
+    toast.style.color = 'var(--grn)';
+    toast.style.borderColor = 'rgba(45,212,160,0.3)';
+  } catch(e) {
+    toast.innerHTML = '⚠ No se pudieron actualizar similares';
+  }
+
+  setTimeout(() => toast.remove(), 3000);
 }
 function deleteProv(id){state.provisions=state.provisions.filter(p=>p.id!==id);save();renderAll()}
 
@@ -2051,6 +2149,100 @@ function saveBudget(){
 // ══════════════════════════════════════════════════════════
 // SWITCHES
 // ══════════════════════════════════════════════════════════
+let _editingSubcatKey = null;
+
+function openCatEditor() {
+  const list = document.getElementById('catEditorList');
+  if (!list) return;
+  list.innerHTML = Object.entries(CATS).map(([key, cat]) => {
+    const movCount = state.transactions.filter(t => t.category === key).length;
+    return '<div class="be-r" data-key="' + key + '" style="flex-direction:column;align-items:stretch;gap:8px;padding:12px">'
+      + '<div style="display:flex;align-items:center;gap:8px">'
+      + '<input class="be-nm" style="width:40px;text-align:center;font-size:22px;padding:2px" value="' + cat.e + '" placeholder="🏷" maxlength="2" data-field="emoji">'
+      + '<input class="be-nm" value="' + cat.l + '" placeholder="Nombre" data-field="label" style="flex:1;font-size:14px;font-weight:500">'
+      + '<span style="font-size:10px;color:var(--tx3);white-space:nowrap">' + movCount + ' mov.</span>'
+      + '<button onclick="openSubcatEditor(\"' + key + '\")" style="background:var(--s3);border:1px solid var(--bd2);color:var(--tx2);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:11px">Subcats</button>'
+      + '<button onclick="deleteCat(\"' + key + '\")" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:2px">🗑</button>'
+      + '</div></div>';
+  }).join('');
+  openModal('catEditorModal');
+}
+
+function saveCatEditor() {
+  document.querySelectorAll('#catEditorList .be-r').forEach(row => {
+    const key = row.dataset.key;
+    const emoji = row.querySelector('[data-field="emoji"]')?.value.trim() || '📦';
+    const label = row.querySelector('[data-field="label"]')?.value.trim() || 'Sin nombre';
+    if (CATS[key]) { CATS[key].e = emoji; CATS[key].l = label; }
+    if (state.customCats && state.customCats[key]) { state.customCats[key].e = emoji; state.customCats[key].l = label; }
+  });
+  save(); initCatSelects(); renderAll(); closeModal('catEditorModal');
+}
+
+function deleteCat(key) {
+  const cat = CATS[key];
+  if (!cat) return;
+  const movCount = state.transactions.filter(t => t.category === key).length;
+  const msg = movCount > 0
+    ? '¿Eliminar "' + cat.l + '"? Los ' + movCount + ' movimientos pasarán a "Otros".'
+    : '¿Eliminar la categoría "' + cat.l + '"?';
+  if (!confirm(msg)) return;
+  state.transactions.forEach(t => { if(t.category === key) t.category = 'otros'; });
+  delete CATS[key];
+  if (state.customCats) delete state.customCats[key];
+  save(); renderAll(); openCatEditor();
+}
+
+function openSubcatEditor(catKey) {
+  _editingSubcatKey = catKey;
+  const cat = CATS[catKey];
+  if (!cat) return;
+  document.getElementById('subcatModalTitle').textContent = cat.e + ' ' + cat.l + ' — Subcategorías';
+  renderSubcatList();
+  openModal('subcatModal');
+}
+
+function renderSubcatList() {
+  const cat = CATS[_editingSubcatKey];
+  if (!cat) return;
+  const subs = cat.subs || [];
+  document.getElementById('subcatList').innerHTML = subs.map((s, i) =>
+    '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--s2);border-radius:8px">'
+    + '<input value="' + s + '" onchange="updateSubcatItem(' + i + ', this.value)" style="flex:1;background:transparent;border:none;color:var(--tx);font-size:13px;outline:none">'
+    + '<button onclick="deleteSubcat(' + i + ')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:15px">×</button>'
+    + '</div>'
+  ).join('');
+}
+
+function updateSubcatItem(idx, val) {
+  if (CATS[_editingSubcatKey]) CATS[_editingSubcatKey].subs[idx] = val;
+}
+
+function deleteSubcat(idx) {
+  if (CATS[_editingSubcatKey]) {
+    CATS[_editingSubcatKey].subs.splice(idx, 1);
+    renderSubcatList();
+  }
+}
+
+function addSubcat() {
+  const input = document.getElementById('newSubcatInput');
+  const val = input.value.trim();
+  if (!val || !CATS[_editingSubcatKey]) return;
+  if (!CATS[_editingSubcatKey].subs) CATS[_editingSubcatKey].subs = [];
+  CATS[_editingSubcatKey].subs.push(val);
+  input.value = '';
+  renderSubcatList();
+}
+
+function saveSubcats() {
+  if (state.customCats && state.customCats[_editingSubcatKey]) {
+    state.customCats[_editingSubcatKey].subs = [...(CATS[_editingSubcatKey].subs||[])];
+  }
+  save();
+  closeModal('subcatModal');
+}
+
 function renderCatPreview() {
   const el = document.getElementById('catPreviewList');
   if (!el) return;
