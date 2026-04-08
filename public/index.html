@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0c0c0e">
-<title>FinW v3.0</title>
-<meta name="app-version" content="v3.0" data-build="08/04/2026 02:50">
+<title>FinW v3.1</title>
+<meta name="app-version" content="v3.1" data-build="08/04/2026 02:50">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <script src="https://apis.google.com/js/api.js" async defer></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -723,7 +723,7 @@ input[type=file]{display:none}
 <body>
 
 <header class="hdr">
-  <div class="logo" onclick="showVersion()" style="cursor:pointer"><div class="logo-dot"></div>FinW <span style="font-size:10px;font-weight:400;color:var(--tx3);margin-left:4px;letter-spacing:0">v3.0</span></div>
+  <div class="logo" onclick="showVersion()" style="cursor:pointer"><div class="logo-dot"></div>FinW <span style="font-size:10px;font-weight:400;color:var(--tx3);margin-left:4px;letter-spacing:0">v3.1</span></div>
   <div class="hdr-r">
     <button class="hide-btn" onclick="toggleHide()" id="hideBtn" title="Ocultar saldos">👁</button>
     <button class="hide-btn" onclick="openDriveModal()" id="driveBtn" title="Google Drive" style="font-size:14px">☁️</button>
@@ -734,7 +734,7 @@ input[type=file]{display:none}
 
 <!-- PERIOD SELECTOR BAR -->
 <div id="versionToast" style="position:fixed;top:60px;left:50%;transform:translateX(-50%);background:var(--s3);border:1px solid var(--bd2);border-radius:8px;padding:8px 16px;font-size:12px;color:var(--tx2);z-index:300;transition:opacity 0.3s;opacity:0;pointer-events:none;white-space:nowrap">
-  FinW v3.0 · Build 08/04/2026 02:50
+  FinW v3.1 · Build 08/04/2026 02:50
 </div>
 <div class="period-bar" id="periodBar">
   <span class="period-label">Período</span>
@@ -1018,6 +1018,8 @@ input[type=file]{display:none}
         <input class="fi" id="manCatName" placeholder="Nombre de la categoría" style="flex:1">
       </div>
       <input class="fi" id="manCatKeywords" placeholder="Keywords: gym, fitness, entrenamiento" style="width:100%;margin-bottom:8px;font-size:12px">
+      <label class="fl" style="margin-top:4px">Subcategorías (opcional, separadas por coma)</label>
+      <input class="fi" id="manCatSubs" placeholder="Ej: Mensualidad, Ropa deportiva, Suplementos" style="width:100%;margin-bottom:8px;font-size:12px">
       <button class="btn btn-s btn-sm" onclick="createManualCat()" style="width:100%;justify-content:center">+ Agregar categoría</button>
       <div id="manCatResult" style="margin-top:8px"></div>
     </div>
@@ -1425,77 +1427,101 @@ async function createCatWithAI() {
   const desc = input.value.trim();
   if (!desc) return;
 
-  result.innerHTML = '<div class="ait"><div class="spin"></div>La IA está creando la categoría...</div>';
+  result.innerHTML = '<div class="ait"><div class="spin"></div>La IA está creando la categoría y subcategorías...</div>';
 
   try {
     const existingCats = Object.entries(CATS).map(([k,v]) => k + ': ' + v.l).join(', ');
-    const prompt = 'Eres un asistente financiero chileno. El usuario quiere crear una nueva categoría de gastos para: "' + desc + '"\n\nCategorías existentes: ' + existingCats + '\n\nCrea una categoría nueva (o sugiere una existente si ya cubre el caso). Responde SOLO con JSON:\n{"key":"nombre_clave_sin_espacios","emoji":"🏷","label":"Nombre legible","keywords":["keyword1","keyword2","keyword3","keyword4","keyword5"],"useExisting":false,"existingKey":""}\nSi ya existe una categoría adecuada, pon useExisting:true y existingKey con la clave. Sin texto adicional.';
+    const prompt = 'Eres un asistente financiero chileno. El usuario quiere crear una categoría de gastos para: "' + desc + '"\n\n'
+      + 'Categorías existentes: ' + existingCats + '\n\n'
+      + 'Responde SOLO con JSON (sin texto adicional):\n'
+      + '{"key":"clave_sin_espacios","emoji":"🏷","label":"Nombre legible","subcategories":["Subcategoría 1","Subcategoría 2","Subcategoría 3"],"keywords":["keyword1","keyword2","keyword3","keyword4","keyword5"],"useExisting":false,"existingKey":""}\n'
+      + 'Reglas:\n'
+      + '- key: 1 palabra en minúsculas sin espacios ni tildes\n'
+      + '- label: nombre corto legible en español\n'
+      + '- subcategories: 3-6 subcategorías específicas y útiles\n'
+      + '- keywords: 5-8 palabras clave que aparecen en descripciones bancarias chilenas\n'
+      + '- Si ya existe una categoría adecuada, pon useExisting:true y existingKey con la clave';
 
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({model: 'claude-sonnet-4-20250514', max_tokens: 300, messages: [{role:'user', content: prompt}]})
+      body: JSON.stringify({model:'claude-sonnet-4-20250514', max_tokens:400, messages:[{role:'user',content:prompt}]})
     });
     const data = await res.json();
     const parsed = JSON.parse((data.content?.[0]?.text || '{}').replace(/```json|```/g,'').trim());
 
     if (parsed.useExisting && parsed.existingKey && CATS[parsed.existingKey]) {
       const m = CATS[parsed.existingKey];
-      result.innerHTML = '<div class="notice n-i">💡 Ya existe la categoría <strong>' + m.e + ' ' + m.l + '</strong> que cubre este caso. ¿Quieres usarla o crear una nueva de todas formas?</div>';
+      result.innerHTML = '<div class="notice n-i">💡 Ya existe <strong>' + m.e + ' ' + m.l + '</strong> que cubre este caso.</div>';
       return;
     }
 
-    if (!parsed.key || !parsed.label) throw new Error('Respuesta inválida');
+    if (!parsed.key || !parsed.label) throw new Error('Respuesta inválida de la IA');
+
+    const key = parsed.key.replace(/[^a-z0-9_]/g,'').slice(0,20);
+    const subs = parsed.subcategories || ['General'];
+    const keywords = parsed.keywords || [];
 
     // Add to CATS
-    const key = parsed.key.replace(/[^a-z0-9_]/g,'').slice(0,20);
-    CATS[key] = {l: parsed.label, e: parsed.emoji || '🏷', c: 'cc-otr', subs: ['General'], keywords: parsed.keywords || []};
-
-    // Add keywords to classifier
+    CATS[key] = {l:parsed.label, e:parsed.emoji||'🏷', c:'cc-otr', subs, keywords};
     if (!state.customCats) state.customCats = {};
     state.customCats[key] = {...CATS[key]};
-    // Add to catRules
     if (!state.catRules) state.catRules = {};
-    (parsed.keywords || []).forEach(kw => { state.catRules[kw.toLowerCase()] = key; });
+    keywords.forEach(kw => { state.catRules[kw.toLowerCase()] = key; });
     save();
     initCatSelects();
     renderIACatGrid();
 
-    result.innerHTML = '<div class="notice n-o">✓ Categoría <strong>' + parsed.emoji + ' ' + parsed.label + '</strong> creada con ' + (parsed.keywords||[]).length + ' keywords automáticas</div>'
-      + '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">'
-      + (parsed.keywords||[]).map(k => '<span style="font-size:11px;background:var(--s3);padding:2px 8px;border-radius:20px;color:var(--tx2)">' + k + '</span>').join('')
+    result.innerHTML = '<div class="notice n-o" style="margin-bottom:8px">✓ Categoría <strong>' + parsed.emoji + ' ' + parsed.label + '</strong> creada</div>'
+      + '<div style="display:flex;flex-direction:column;gap:8px">'
+      + '<div>'
+      + '<div style="font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px">Subcategorías (' + subs.length + ')</div>'
+      + '<div style="display:flex;flex-wrap:wrap;gap:5px">'
+      + subs.map(s => '<span style="font-size:11px;background:var(--s3);border:1px solid var(--bd2);padding:3px 9px;border-radius:20px;color:var(--tx2)">' + s + '</span>').join('')
+      + '</div></div>'
+      + '<div>'
+      + '<div style="font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px">Keywords de clasificación automática (' + keywords.length + ')</div>'
+      + '<div style="display:flex;flex-wrap:wrap;gap:5px">'
+      + keywords.map(k => '<span style="font-size:11px;background:var(--acc-bg);border:1px solid rgba(123,104,238,0.2);padding:3px 9px;border-radius:20px;color:var(--acc2)">' + k + '</span>').join('')
+      + '</div></div>'
+      + '<button class="btn btn-s btn-sm" onclick="openSubcatEditor(\"' + key + '\")" style="align-self:flex-start">✏️ Editar subcategorías</button>'
       + '</div>';
     input.value = '';
 
   } catch(e) {
-    result.innerHTML = '<div class="notice n-w">⚠ ' + e.message + ' — La API key puede no estar configurada en Vercel.</div>';
+    result.innerHTML = '<div class="notice n-w">⚠ ' + e.message + ' — Verifica que la API key esté configurada en Vercel.</div>';
   }
 }
+
 
 function createManualCat() {
   const emoji = document.getElementById('manCatEmoji').value.trim() || '🏷';
   const name = document.getElementById('manCatName').value.trim();
   const kwRaw = document.getElementById('manCatKeywords').value.trim();
+  const subsRaw = document.getElementById('manCatSubs')?.value.trim() || '';
   const result = document.getElementById('manCatResult');
 
   if (!name) { result.innerHTML = '<div class="notice n-w">⚠ Escribe un nombre para la categoría</div>'; return; }
 
   const key = 'custom_' + name.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,15) + '_' + Date.now().toString(36).slice(-3);
   const keywords = kwRaw ? kwRaw.split(',').map(k=>k.trim().toLowerCase()).filter(Boolean) : [];
+  const subs = subsRaw ? subsRaw.split(',').map(s=>s.trim()).filter(Boolean) : ['General'];
 
-  CATS[key] = {l: name, e: emoji, c: 'cc-otr', subs: ['General'], keywords};
+  CATS[key] = {l:name, e:emoji, c:'cc-otr', subs, keywords};
   if (!state.customCats) state.customCats = {};
   state.customCats[key] = {...CATS[key]};
   if (!state.catRules) state.catRules = {};
   keywords.forEach(kw => { state.catRules[kw] = key; });
-  save();
-  initCatSelects();
-  renderIACatGrid();
+  save(); initCatSelects(); renderIACatGrid();
 
-  result.innerHTML = '<div class="notice n-o">✓ Categoría ' + emoji + ' ' + name + ' creada' + (keywords.length ? ' con keywords: ' + keywords.join(', ') : '') + '</div>';
+  result.innerHTML = '<div class="notice n-o">✓ ' + emoji + ' ' + name + ' creada'
+    + (subs.length > 1 ? ' · ' + subs.length + ' subcategorías' : '')
+    + (keywords.length ? ' · ' + keywords.length + ' keywords' : '') + '</div>'
+    + '<button class="btn btn-s btn-sm" onclick="openSubcatEditor(\"' + key + '\")" style="margin-top:6px">✏️ Editar subcategorías</button>';
   document.getElementById('manCatEmoji').value = '';
   document.getElementById('manCatName').value = '';
   document.getElementById('manCatKeywords').value = '';
+  if(document.getElementById('manCatSubs')) document.getElementById('manCatSubs').value = '';
 }
 
 function renderIACatGrid() {
