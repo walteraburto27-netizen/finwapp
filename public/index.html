@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0c0c0e">
-<title>FinW v2.6</title>
-<meta name="app-version" content="v2.6" data-build="08/04/2026 02:50">
+<title>FinW v2.8</title>
+<meta name="app-version" content="v2.8" data-build="08/04/2026 02:50">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<script src="https://apis.google.com/js/api.js" async defer></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;1,14..32,300&family=Space+Grotesk:wght@400;500;600;700&display=swap');
@@ -696,9 +697,10 @@ input[type=file]{display:none}
 <body>
 
 <header class="hdr">
-  <div class="logo" onclick="showVersion()" style="cursor:pointer"><div class="logo-dot"></div>FinW <span style="font-size:10px;font-weight:400;color:var(--tx3);margin-left:4px;letter-spacing:0">v2.6</span></div>
+  <div class="logo" onclick="showVersion()" style="cursor:pointer"><div class="logo-dot"></div>FinW <span style="font-size:10px;font-weight:400;color:var(--tx3);margin-left:4px;letter-spacing:0">v2.8</span></div>
   <div class="hdr-r">
     <button class="hide-btn" onclick="toggleHide()" id="hideBtn" title="Ocultar saldos">👁</button>
+    <button class="hide-btn" onclick="openDriveModal()" id="driveBtn" title="Google Drive" style="font-size:14px">☁️</button>
     <button class="btn btn-sm btn-s" onclick="openProvModal()">+ Prov.</button>
     <button class="btn btn-sm btn-p" onclick="openManualModal()">+ Gasto</button>
   </div>
@@ -706,7 +708,7 @@ input[type=file]{display:none}
 
 <!-- PERIOD SELECTOR BAR -->
 <div id="versionToast" style="position:fixed;top:60px;left:50%;transform:translateX(-50%);background:var(--s3);border:1px solid var(--bd2);border-radius:8px;padding:8px 16px;font-size:12px;color:var(--tx2);z-index:300;transition:opacity 0.3s;opacity:0;pointer-events:none;white-space:nowrap">
-  FinW v2.6 · Build 08/04/2026 02:50
+  FinW v2.8 · Build 08/04/2026 02:50
 </div>
 <div class="period-bar" id="periodBar">
   <span class="period-label">Período</span>
@@ -749,6 +751,7 @@ input[type=file]{display:none}
 <div class="sg" id="summaryCards"></div>
   <div class="sec"><div class="sec-t">Gastos por categoría</div></div>
   <div class="card" id="catChart" style="padding:14px 16px"></div>
+  <div id="otrosAlert" style="display:none;margin-bottom:10px"></div>
   <div class="sec"><div class="sec-t">Últimos movimientos</div><button class="sec-a" onclick="showPanel('movimientos',null)">Ver todos →</button></div>
   <div class="ml" id="recentMov"></div>
 </div>
@@ -796,12 +799,12 @@ input[type=file]{display:none}
     </div>
     <!-- Quick suggestions -->
     <div id="chatSuggestions" style="padding:0 14px 10px;display:flex;gap:6px;flex-wrap:wrap">
+      <button class="chat-sugg" onclick="sendSugg(this)">¿Qué movimientos no están clasificados?</button>
+      <button class="chat-sugg" onclick="sendSugg(this)">Reclasifica todos mis movimientos</button>
       <button class="chat-sugg" onclick="sendSugg(this)">¿En qué gasto más?</button>
-      <button class="chat-sugg" onclick="sendSugg(this)">¿Cuánto gasto por mes en promedio?</button>
       <button class="chat-sugg" onclick="sendSugg(this)">¿Cuál fue mi peor mes?</button>
-      <button class="chat-sugg" onclick="sendSugg(this)">¿Hay duplicados en mis datos?</button>
-      <button class="chat-sugg" onclick="sendSugg(this)">¿Cuánto gasto en salud?</button>
       <button class="chat-sugg" onclick="sendSugg(this)">Analiza mis suscripciones</button>
+      <button class="chat-sugg" onclick="sendSugg(this)">¿Hay duplicados?</button>
     </div>
     <!-- Input -->
     <div style="display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--bd)">
@@ -1066,6 +1069,52 @@ input[type=file]{display:none}
     <div class="md-foot">
       <button class="btn btn-s" onclick="closeModal('subcatModal')">Cancelar</button>
       <button class="btn btn-p" onclick="saveSubcats()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Google Drive Modal -->
+<div class="mo" id="driveModal">
+  <div class="md"><div class="md-h"></div>
+    <div class="md-hdr">
+      <div class="md-t">☁️ Google Drive</div>
+      <button class="md-x" onclick="closeModal('driveModal')">×</button>
+    </div>
+    <div class="md-body">
+      <div id="driveStatus" style="text-align:center;padding:10px 0">
+        <div style="font-size:40px;margin-bottom:12px">☁️</div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:6px">Conecta Google Drive</div>
+        <div style="font-size:12px;color:var(--tx2);margin-bottom:20px;line-height:1.6">Guarda tus datos en Drive para acceder desde cualquier dispositivo. Solo tú puedes ver tus archivos.</div>
+        <button class="btn btn-p" onclick="driveSignIn()" id="driveSignInBtn" style="width:100%;justify-content:center">
+          <span style="font-size:16px">G</span> Conectar con Google
+        </button>
+      </div>
+      <div id="driveConnected" style="display:none">
+        <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--grn-bg);border:1px solid rgba(45,212,160,0.2);border-radius:10px;margin-bottom:14px">
+          <span style="font-size:20px">✅</span>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--grn)">Conectado</div>
+            <div style="font-size:11px;color:var(--tx2)" id="driveUserEmail"></div>
+          </div>
+          <button class="btn btn-s btn-sm" onclick="driveSignOut()" style="margin-left:auto">Desconectar</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="btn btn-p" onclick="driveSave()" style="width:100%;justify-content:center">
+            ☁️ Guardar datos en Drive
+          </button>
+          <button class="btn btn-s" onclick="driveLoad()" style="width:100%;justify-content:center">
+            📥 Cargar datos desde Drive
+          </button>
+        </div>
+        <div id="driveMsg" style="margin-top:10px"></div>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)">
+          <div style="font-size:11px;color:var(--tx3);line-height:1.6">
+            • Los datos se guardan en tu Drive personal como <strong>finw-data.json</strong><br>
+            • Solo tú tienes acceso — FinW no puede ver otros archivos<br>
+            • Guarda manualmente cuando quieras sincronizar
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1655,48 +1704,61 @@ function buildDataContext() {
 
 function buildSystemPrompt() {
   const ctx = buildDataContext();
+  const otrosTxs = state.transactions.filter(t => t.amount < 0 && t.category === 'otros');
+  const catList = Object.entries(CATS).map(([k,v]) => k + ': ' + v.l).join(', ');
+
   const catLines = Object.entries(ctx.byCategory)
     .sort((a,b)=>b[1]-a[1])
-    .map(([c,v]) => "- " + c + ": $" + v.toLocaleString("es-CL"))
+    .map(([c,v]) => "- " + (CATS[c]?.l||c) + ": $" + v.toLocaleString("es-CL"))
     .join("\n");
   const merchantLines = ctx.topMerchants
-    .map(m => "- " + m.name + ": " + m.visits + " visitas, total $" + m.total.toLocaleString("es-CL") + ", promedio $" + m.avg.toLocaleString("es-CL") + "/visita, ultima visita " + m.lastDate)
+    .map(m => "- " + m.name + ": " + m.visits + " visitas, $" + m.avg.toLocaleString("es-CL") + "/vez")
     .join("\n");
   const monthLines = Object.entries(ctx.byMonth)
-    .sort()
-    .map(([m,v]) => "- " + m + ": ingresos $" + Math.round(v.income).toLocaleString("es-CL") + ", gastos $" + Math.round(v.expense).toLocaleString("es-CL"))
+    .sort().map(([m,v]) => "- " + m + ": ingresos $" + Math.round(v.income).toLocaleString("es-CL") + ", gastos $" + Math.round(v.expense).toLocaleString("es-CL"))
     .join("\n");
-  const txLines = ctx.recentTransactions
-    .map(t => t.d + "|" + t.desc + "|$" + t.amt.toLocaleString("es-CL") + "|" + t.cat)
+  const otrosLines = otrosTxs.slice(0,30)
+    .map(t => t.date + " | " + t.desc + " | $" + Math.abs(t.amount).toLocaleString("es-CL"))
     .join("\n");
 
   return [
-    "Eres el asistente financiero personal de Walter Aburto, un profesional chileno que vive en Santiago.",
+    "Eres el asistente financiero personal del usuario de FinW.",
+    "Tienes acceso completo a sus datos financieros Y puedes ejecutar acciones directamente.",
     "",
-    "DATOS FINANCIEROS COMPLETOS (" + ctx.period.from + " a " + ctx.period.to + "):",
-    "- Total transacciones: " + ctx.totalTransactions,
-    "- Ingresos totales: $" + ctx.totalIncome.toLocaleString("es-CL"),
-    "- Gastos totales: $" + ctx.totalExpense.toLocaleString("es-CL"),
+    "CAPACIDADES DE ACCION:",
+    "Si el usuario pide reclasificar, detectas problemas de categorías, o ves movimientos mal clasificados,",
+    "incluye al final de tu respuesta una acción en este formato EXACTO (en línea nueva):",
+    'ACTION:reclassify',
+    "O para reclasificar una categoría específica:",
+    'ACTION:reclassify:categoria_key',
+    "O para mostrar los no clasificados:",
+    'ACTION:show_otros',
+    "Siempre incluye la acción cuando sea relevante - no solo describas el problema, ACTÚA.",
+    "",
+    "DATOS (" + ctx.period.from + " a " + ctx.period.to + "):",
+    "- Transacciones: " + ctx.totalTransactions,
+    "- Ingresos: $" + ctx.totalIncome.toLocaleString("es-CL"),
+    "- Gastos: $" + ctx.totalExpense.toLocaleString("es-CL"),
+    "- EN OTROS (sin clasificar): " + otrosTxs.length + " movimientos",
     "",
     "GASTOS POR CATEGORIA:",
     catLines,
     "",
-    "COMERCIOS MAS FRECUENTADOS (top 30 por visitas):",
+    "CATEGORIAS DISPONIBLES: " + catList,
+    "",
+    "COMERCIOS MAS FRECUENTES:",
     merchantLines,
     "",
     "EVOLUCION MENSUAL:",
     monthLines,
     "",
-    "ULTIMAS 200 TRANSACCIONES (para consultas especificas):",
-    txLines,
+    "MOVIMIENTOS SIN CLASIFICAR (en Otros):",
+    otrosLines || "Ninguno - todos clasificados",
     "",
     "INSTRUCCIONES:",
-    "- Responde en espanol chileno, directo y conciso",
-    "- Usa montos especificos en pesos chilenos con formato $X.XXX.XXX",
-    "- Cuando pregunten por un comercio especifico (ej: Faustina), busca en las transacciones y da frecuencia exacta, monto promedio, ultima visita",
-    "- Se conversacional pero preciso con los numeros",
-    "- Si no tienes datos suficientes, dilo claramente",
-    "- Maximo 4-5 oraciones por respuesta salvo que se pida un analisis detallado"
+    "- Responde en español chileno, directo y con datos específicos",
+    "- Cuando veas problemas de clasificación: ACTÚA con ACTION, no solo describas",
+    "- Máximo 4 oraciones de texto, luego la acción si aplica"
   ].join("\n");
 }
 
@@ -1705,42 +1767,189 @@ async function sendChat() {
   const input = document.getElementById('chatInput');
   const msg = input.value.trim();
   if (!msg) return;
-  
+
   input.value = '';
   document.getElementById('chatSuggestions').style.display = 'none';
-  
+
   appendChatMsg('user', msg);
   const thinkingId = appendChatMsg('ai', '...', true);
-  
-  chatHistory.push({ role: 'user', content: msg });
-  
-  // Keep history to last 8 messages to avoid token overflow
+
+  chatHistory.push({role:'user', content:msg});
   const recentHistory = chatHistory.slice(-8);
-  
+
   try {
     const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 600,
+        model:'claude-sonnet-4-20250514',
+        max_tokens:700,
         system: buildSystemPrompt(),
         messages: recentHistory
       })
     });
-    
+
     const data = await res.json();
-    const reply = data.content?.[0]?.text || 'No pude generar una respuesta.';
-    
-    chatHistory.push({ role: 'assistant', content: reply });
+    let reply = data.content?.[0]?.text || 'No pude generar una respuesta.';
+
+    // Parse ACTION from reply
+    const actionMatch = reply.match(/ACTION:([a-z_:]+)/);
+    let action = null;
+    if (actionMatch) {
+      action = actionMatch[1];
+      reply = reply.replace(/ACTION:[a-z_:]+/g, '').trim();
+    }
+
+    chatHistory.push({role:'assistant', content: reply});
     updateChatMsg(thinkingId, reply);
-    
+
+    // Execute action
+    if (action) {
+      await executeChatAction(action);
+    }
+
   } catch(e) {
-    updateChatMsg(thinkingId, `Error al conectar con la IA: ${e.message}. Sube el archivo a Netlify para que funcione.`);
+    updateChatMsg(thinkingId, 'Error al conectar: ' + e.message);
   }
-  
+
   scrollChat();
 }
+
+async function executeChatAction(action) {
+  if (action === 'show_otros' || action.includes('otros')) {
+    showOtrosDropdown();
+    return;
+  }
+
+  if (action.startsWith('reclassify')) {
+    const catFilter = action.includes(':') ? action.split(':')[1] : null;
+    appendChatMsg('ai', '🔄 Ejecutando reclasificación' + (catFilter ? ' de "' + (CATS[catFilter]?.l||catFilter) + '"' : ' masiva') + '...', false);
+    await runMassReclassifyFromChat(catFilter);
+    return;
+  }
+}
+
+function showOtrosDropdown() {
+  const otrosTxs = state.transactions
+    .filter(t => t.amount < 0 && t.category === 'otros')
+    .sort((a,b) => Math.abs(b.amount) - Math.abs(a.amount));
+
+  if (!otrosTxs.length) {
+    appendChatMsg('ai', 'Sin movimientos sin clasificar. Todo en orden.');
+    return;
+  }
+
+  const total = otrosTxs.reduce((s,t) => s+Math.abs(t.amount), 0);
+  const msgId = appendChatMsg('ai', '');
+  const el = document.getElementById(msgId);
+  if (!el) return;
+
+  const bubble = el.querySelector('.chat-bubble');
+  bubble.innerHTML = '<strong>' + otrosTxs.length + ' sin clasificar</strong> — $' + total.toLocaleString('es-CL');
+
+  // Build list as DOM
+  const list = document.createElement('div');
+  list.style.cssText = 'max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-top:8px';
+
+  otrosTxs.slice(0,20).forEach(t => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 8px;background:rgba(255,255,255,0.05);border-radius:7px;cursor:pointer';
+    row.innerHTML = '<span style="flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + t.desc + '</span>'
+      + '<span style="font-size:11px;color:var(--tx3);flex-shrink:0">' + t.date.slice(0,7) + '</span>'
+      + '<span style="font-size:12px;font-weight:600;color:var(--tx2);flex-shrink:0">$' + Math.abs(t.amount).toLocaleString('es-CL') + '</span>'
+      + '<span style="font-size:10px;background:var(--acc-bg);color:var(--acc2);padding:2px 6px;border-radius:4px;flex-shrink:0">Clasificar</span>';
+    row.addEventListener('click', () => quickReclassifyFromChat(t.id));
+    list.appendChild(row);
+  });
+
+  if (otrosTxs.length > 20) {
+    const more = document.createElement('div');
+    more.style.cssText = 'font-size:11px;color:var(--tx3);text-align:center;padding:4px';
+    more.textContent = '...y ' + (otrosTxs.length-20) + ' más';
+    list.appendChild(more);
+  }
+
+  bubble.appendChild(list);
+
+  const btn = document.createElement('button');
+  btn.className = 'btn btn-p btn-sm';
+  btn.style.cssText = 'width:100%;justify-content:center;margin-top:10px';
+  btn.textContent = '🔄 Reclasificar todos con IA';
+  btn.addEventListener('click', () => runMassReclassifyFromChat(null));
+  bubble.appendChild(btn);
+
+  scrollChat();
+}
+
+
+function quickReclassifyFromChat(txId) {
+  editCatId = txId;
+  openCatModal(txId);
+}
+
+async function runMassReclassifyFromChat(catFilter) {
+  const toReclassify = state.transactions.filter(t =>
+    t.amount < 0 && (
+      !t.category ||
+      t.category === 'otros' ||
+      (catFilter && t.category === catFilter)
+    )
+  );
+
+  if (!toReclassify.length) {
+    appendChatMsg('ai', '✅ No hay movimientos para reclasificar.');
+    return;
+  }
+
+  const progressId = appendChatMsg('ai', '⏳ Procesando ' + toReclassify.length + ' movimientos...', false);
+  const BATCH = 25;
+  let improved = 0;
+
+  for (let i=0; i<toReclassify.length; i+=BATCH) {
+    const batch = toReclassify.slice(i, i+BATCH);
+
+    // Keywords first
+    batch.forEach(t => {
+      const kw = classifyByKeyword(t.desc, t.amount);
+      if (kw !== 'otros') {
+        const stTx = state.transactions.find(s=>s.id===t.id);
+        if (stTx && stTx.category !== kw) { stTx.category = kw; improved++; }
+      }
+    });
+
+    // AI for remaining
+    const stillOtros = batch.filter(t => {
+      const st = state.transactions.find(s=>s.id===t.id);
+      return st && st.category === 'otros';
+    });
+
+    if (stillOtros.length > 0) {
+      try {
+        const cats = await classifyWithAI(stillOtros.map((t,j)=>({id:String(j),desc:t.desc,amount:t.amount})));
+        cats.forEach(c => {
+          const t = stillOtros[parseInt(c.id)];
+          if (t && c.category && c.category !== 'otros') {
+            const stTx = state.transactions.find(s=>s.id===t.id);
+            if (stTx) { stTx.category = c.category; improved++; }
+          }
+        });
+      } catch(e) {}
+    }
+
+    if (i+BATCH < toReclassify.length) await new Promise(r=>setTimeout(r,200));
+  }
+
+  save(); renderAll();
+  const otrosLeft = state.transactions.filter(t=>t.amount<0&&t.category==='otros').length;
+  updateChatMsg(progressId, '✅ ' + improved + ' movimientos reclasificados. '
+    + (otrosLeft > 0 ? otrosLeft + ' siguen en "Otros" — tócalos para clasificar manualmente.' : '¡Todo clasificado!'));
+
+  if (otrosLeft > 0) {
+    setTimeout(() => showOtrosDropdown(), 500);
+  }
+  scrollChat();
+}
+
 
 function sendSugg(btn) {
   document.getElementById('chatInput').value = btn.textContent;
@@ -1844,6 +2053,22 @@ function renderSummary(){
     <div class="br-t"><div class="br-f" style="width:${(v/max*100).toFixed(1)}%;background:${clrs[i%clrs.length]}"></div></div>
     <div class="br-v" style="color:${clrs[i%clrs.length]}">${fmt(v)}</div></div>
   `).join(''):'<div class="empty"><div class="empty-ic">📊</div><div class="empty-t">Sin gastos en el período</div></div>';
+  // Show otros alert
+  const otrosCount = state.transactions.filter(t=>t.amount<0&&t.category==='otros').length;
+  if (otrosAlert) {
+    if (otrosCount > 0) {
+      otrosAlert.style.display = 'block';
+      const aDiv = document.createElement('div');
+      aDiv.style.cssText = 'background:var(--ylw-bg);border:1px solid rgba(245,166,35,0.25);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer';
+      aDiv.innerHTML = '<span style="font-size:20px">⚠️</span><span style="flex:1"><strong style="color:var(--ylw)">' + otrosCount + ' sin clasificar</strong><br><span style="font-size:11px;color:var(--tx2)">Toca para clasificar con IA</span></span><span style="color:var(--tx3)">›</span>';
+      aDiv.addEventListener('click', () => { showPanel('analisis',null); setTimeout(()=>{ const ci=document.getElementById('chatInput'); if(ci) ci.focus(); },300); });
+      otrosAlert.innerHTML = ''; otrosAlert.appendChild(aDiv);
+    } else {
+      otrosAlert.style.display = 'none';
+      otrosAlert.style.display = 'none';
+    }
+  }
+
   const dups=detectDuplicates(txs);
   const recent=[...txs].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,8);
   document.getElementById('recentMov').innerHTML=recent.length?recent.map(t=>movRow(t,dups)).join(''):
@@ -2907,6 +3132,99 @@ function fileToBase64(file) {
 document.querySelectorAll('.modal-overlay').forEach(m => {
   m.addEventListener('click', e => { if (e.target===m) m.classList.remove('open'); });
 });
+
+
+// ══════════════════════════════════════════════════════════
+// GOOGLE DRIVE
+// ══════════════════════════════════════════════════════════
+const DRIVE_CLIENT_ID = '844346381476-ta8cb5mteuj70jdkfsdhd3j3p1vb330o.apps.googleusercontent.com';
+const DRIVE_FILE_NAME = 'finw-data.json';
+let driveToken = null, driveFileId = null;
+
+function openDriveModal(){ updateDriveUI(); openModal('driveModal'); }
+function updateDriveUI(){
+  const ok=!!driveToken;
+  const s=document.getElementById('driveStatus'),c=document.getElementById('driveConnected');
+  if(s)s.style.display=ok?'none':'block';
+  if(c)c.style.display=ok?'block':'none';
+  const b=document.getElementById('driveBtn');
+  if(b){b.textContent=ok?'✅':'☁️';b.title=ok?'Drive conectado':'Conectar Drive';}
+  const em=document.getElementById('driveUserEmail');
+  if(em&&state.driveUser)em.textContent=state.driveUser;
+}
+function driveSignIn(){
+  const sc=document.createElement('script');
+  sc.src='https://accounts.google.com/gsi/client';
+  sc.onload=()=>{
+    const tc=google.accounts.oauth2.initTokenClient({
+      client_id:DRIVE_CLIENT_ID,
+      scope:'https://www.googleapis.com/auth/drive.file',
+      callback:async(r)=>{
+        if(r.error)return;
+        driveToken=r.access_token;
+        try{const ri=await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+driveToken}});const info=await ri.json();state.driveUser=info.email||'Conectado';save();}catch(e){}
+        updateDriveUI();
+        await driveLoad();
+      }
+    });
+    tc.requestAccessToken();
+  };
+  document.head.appendChild(sc);
+}
+function driveSignOut(){
+  if(driveToken&&typeof google!=='undefined')google.accounts.oauth2.revoke(driveToken);
+  driveToken=null;driveFileId=null;delete state.driveUser;save();updateDriveUI();
+}
+async function driveSave(){
+  const msg=document.getElementById('driveMsg');
+  if(!driveToken){if(msg)msg.innerHTML='<div class="notice n-w">⚠ Conecta tu cuenta primero</div>';return;}
+  if(msg)msg.innerHTML='<div class="ait"><div class="spin"></div>Guardando en Drive...</div>';
+  try{
+    const content=JSON.stringify(state,null,2);
+    if(!driveFileId){
+      const sr=await fetch('https://www.googleapis.com/drive/v3/files?q=name="'+DRIVE_FILE_NAME+'"&spaces=drive&fields=files(id)',{headers:{Authorization:'Bearer '+driveToken}});
+      const sd=await sr.json();
+      if(sd.files&&sd.files.length)driveFileId=sd.files[0].id;
+    }
+    if(driveFileId){
+      await fetch('https://www.googleapis.com/upload/drive/v3/files/'+driveFileId+'?uploadType=media',{method:'PATCH',headers:{Authorization:'Bearer '+driveToken,'Content-Type':'application/json'},body:content});
+    }else{
+      const form=new FormData();
+      form.append('metadata',new Blob([JSON.stringify({name:DRIVE_FILE_NAME,mimeType:'application/json'})],{type:'application/json'}));
+      form.append('file',new Blob([content],{type:'application/json'}));
+      const cr=await(await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',headers:{Authorization:'Bearer '+driveToken},body:form})).json();
+      driveFileId=cr.id;
+    }
+    const now=new Date().toLocaleString('es-CL');state.driveLastSave=now;save();
+    if(msg)msg.innerHTML='<div class="notice n-o">✅ '+now+' · '+state.transactions.length+' transacciones</div>';
+  }catch(e){if(msg)msg.innerHTML='<div class="notice n-w">⚠ '+e.message+'</div>';}
+}
+async function driveLoad(){
+  const msg=document.getElementById('driveMsg');
+  if(!driveToken)return;
+  if(msg)msg.innerHTML='<div class="ait"><div class="spin"></div>Cargando desde Drive...</div>';
+  try{
+    const sr=await fetch('https://www.googleapis.com/drive/v3/files?q=name="'+DRIVE_FILE_NAME+'"&spaces=drive&fields=files(id,modifiedTime)',{headers:{Authorization:'Bearer '+driveToken}});
+    const sd=await sr.json();
+    if(!sd.files||!sd.files.length){if(msg)msg.innerHTML='<div class="notice n-i">No hay datos en Drive. Guarda primero.</div>';return;}
+    driveFileId=sd.files[0].id;
+    const mt=new Date(sd.files[0].modifiedTime).toLocaleString('es-CL');
+    const ds=await(await fetch('https://www.googleapis.com/drive/v3/files/'+driveFileId+'?alt=media',{headers:{Authorization:'Bearer '+driveToken}})).json();
+    if(ds.transactions&&ds.transactions.length){
+      const ex=new Set(state.transactions.map(t=>t.id));
+      const nw=ds.transactions.filter(t=>!ex.has(t.id));
+      state.transactions=[...state.transactions,...nw];
+      if(ds.provisions)state.provisions=ds.provisions;
+      if(ds.budget)state.budget=ds.budget;
+      if(ds.catRules)state.catRules={...state.catRules,...ds.catRules};
+      if(ds.customCats){state.customCats={...state.customCats,...ds.customCats};Object.entries(state.customCats).forEach(([k,v])=>{CATS[k]=v;});}
+      save();renderAll();
+      if(msg)msg.innerHTML='<div class="notice n-o">✅ Cargado ('+mt+') · '+nw.length+' nuevas</div>';
+    }else{if(msg)msg.innerHTML='<div class="notice n-i">Archivo Drive vacío.</div>';}
+  }catch(e){if(msg)msg.innerHTML='<div class="notice n-w">⚠ '+e.message+'</div>';}
+}
+function toggleHide(){document.body.classList.toggle('hidden-mode');const b=document.getElementById('hideBtn');if(b)b.textContent=document.body.classList.contains('hidden-mode')?'🙈':'👁';}
+function showVersion(){const d=document.getElementById('versionToast');if(d){d.style.opacity='1';setTimeout(()=>d.style.opacity='0',2500);}}
 
 // ══════════════════════════════════════════════
 // INIT
