@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0c0c0e">
-<title>FinW v2.8</title>
-<meta name="app-version" content="v2.8" data-build="08/04/2026 02:50">
+<title>FinW v3.0</title>
+<meta name="app-version" content="v3.0" data-build="08/04/2026 02:50">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <script src="https://apis.google.com/js/api.js" async defer></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -667,6 +667,32 @@ input[type=file]{display:none}
 .empty-ic{font-size:34px;margin-bottom:10px;opacity:0.5}
 .empty-t{font-family:'Space Grotesk',sans-serif;font-size:14px;color:var(--tx2);margin-bottom:4px}
 
+/* ── HELP SYSTEM ── */
+.help-btn{
+  width:24px;height:24px;border-radius:50%;
+  background:var(--s3);border:1px solid var(--bd2);
+  color:var(--tx3);cursor:pointer;font-size:13px;
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all 0.15s;font-weight:600;
+  font-family:"Inter",sans-serif;
+}
+.help-btn:hover{border-color:var(--acc);color:var(--acc2);background:var(--acc-bg)}
+.help-box{
+  background:var(--blu-bg);border:1px solid rgba(91,156,246,0.2);
+  border-radius:12px;padding:14px 16px;margin-bottom:12px;
+  display:none;
+}
+.help-box.open{display:block}
+.help-box h4{font-size:13px;font-weight:600;color:var(--blu);margin-bottom:8px}
+.help-box ul{padding-left:16px;display:flex;flex-direction:column;gap:5px}
+.help-box li{font-size:12px;color:var(--tx2);line-height:1.5}
+.help-box li strong{color:var(--tx)}
+.help-box .help-tip{
+  margin-top:10px;padding:8px 10px;
+  background:rgba(91,156,246,0.1);border-radius:8px;
+  font-size:11px;color:var(--blu);
+}
+
 /* ── IA CARDS ── */
 .ia-card{
   background:var(--s1);border:1px solid var(--bd);
@@ -697,7 +723,7 @@ input[type=file]{display:none}
 <body>
 
 <header class="hdr">
-  <div class="logo" onclick="showVersion()" style="cursor:pointer"><div class="logo-dot"></div>FinW <span style="font-size:10px;font-weight:400;color:var(--tx3);margin-left:4px;letter-spacing:0">v2.8</span></div>
+  <div class="logo" onclick="showVersion()" style="cursor:pointer"><div class="logo-dot"></div>FinW <span style="font-size:10px;font-weight:400;color:var(--tx3);margin-left:4px;letter-spacing:0">v3.0</span></div>
   <div class="hdr-r">
     <button class="hide-btn" onclick="toggleHide()" id="hideBtn" title="Ocultar saldos">👁</button>
     <button class="hide-btn" onclick="openDriveModal()" id="driveBtn" title="Google Drive" style="font-size:14px">☁️</button>
@@ -708,7 +734,7 @@ input[type=file]{display:none}
 
 <!-- PERIOD SELECTOR BAR -->
 <div id="versionToast" style="position:fixed;top:60px;left:50%;transform:translateX(-50%);background:var(--s3);border:1px solid var(--bd2);border-radius:8px;padding:8px 16px;font-size:12px;color:var(--tx2);z-index:300;transition:opacity 0.3s;opacity:0;pointer-events:none;white-space:nowrap">
-  FinW v2.8 · Build 08/04/2026 02:50
+  FinW v3.0 · Build 08/04/2026 02:50
 </div>
 <div class="period-bar" id="periodBar">
   <span class="period-label">Período</span>
@@ -758,6 +784,20 @@ input[type=file]{display:none}
 
 <!-- ALERTAS -->
 <div id="panel-alertas" class="panel">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
+    <button class="help-btn" onclick="toggleHelp('help-alertas')" title="Instrucciones">?</button>
+  </div>
+  <div class="help-box" id="help-alertas">
+    <h4>🔔 Cómo usar las Alertas</h4>
+    <ul>
+      <li><strong>Alertas activas:</strong> Se generan automáticamente según tu presupuesto y tus patrones de gasto histórico.</li>
+      <li><strong>Presupuesto vs Gasto:</strong> Barra de progreso por categoría. Verde = OK, amarillo = 80%, rojo = superado.</li>
+      <li><strong>Editar presupuesto:</strong> Toca "Editar →" para definir cuánto quieres gastar en cada categoría.</li>
+      <li><strong>Configurar alertas:</strong> Activa o desactiva cada tipo de alerta con los switches.</li>
+      <li><strong>Herramientas IA:</strong> Acceso rápido a reclasificación y deduplicación.</li>
+    </ul>
+    <div class="help-tip">💡 La alerta de "patrón anómalo" compara tu gasto actual vs tu promedio histórico. Si gastas +80% más de lo normal en una categoría, te avisa.</div>
+  </div>
   <div id="alertBanners"></div>
   <div class="sec"><div class="sec-t">Presupuesto vs Gasto real</div><button class="sec-a" onclick="openBudgetEditor()">Editar →</button></div>
   <div id="budgetBars"></div>
@@ -784,6 +824,23 @@ input[type=file]{display:none}
 
 <!-- ANÁLISIS HISTÓRICO -->
 <div id="panel-analisis" class="panel">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
+    <button class="help-btn" onclick="toggleHelp('help-analisis')" title="Instrucciones">?</button>
+  </div>
+  <div class="help-box" id="help-analisis">
+    <h4>📈 Cómo usar el Análisis</h4>
+    <ul>
+      <li><strong>Período:</strong> Cambia el período arriba para analizar cualquier rango de fechas. Los gráficos se actualizan al instante.</li>
+      <li><strong>Tasa de ahorro:</strong> % de tus ingresos que no gastas. Meta recomendada: mínimo 20%.</li>
+      <li><strong>Evolución mensual:</strong> Barra verde = ingresos, roja = gastos. Mes positivo cuando el verde supera al rojo.</li>
+      <li><strong>Asistente IA:</strong> Hazle preguntas en lenguaje natural. Ejemplos:<br>
+        "¿Con qué frecuencia voy a Jumbo?"<br>
+        "¿Cuánto gasté en bares en marzo?"<br>
+        "Reclasifica mis movimientos sin categoría"</li>
+      <li><strong>Análisis completo:</strong> Genera un informe escrito con diagnóstico y recomendaciones personalizadas.</li>
+    </ul>
+    <div class="help-tip">💡 El asistente IA puede ejecutar acciones directamente. Dile "reclasifica todo" y lo hace sin que vayas a otra pantalla.</div>
+  </div>
   <div class="an-grid" id="anCards"></div>
   <div class="sec"><div class="sec-t">Evolución mensual de gastos</div></div>
   <div class="card" id="trendChart" style="padding:14px 16px"></div>
@@ -820,6 +877,20 @@ input[type=file]{display:none}
 
 <!-- MOVIMIENTOS -->
 <div id="panel-movimientos" class="panel">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
+    <button class="help-btn" onclick="toggleHelp('help-movimientos')" title="Instrucciones">?</button>
+  </div>
+  <div class="help-box" id="help-movimientos">
+    <h4>💳 Cómo usar Movimientos</h4>
+    <ul>
+      <li><strong>Buscar:</strong> Escribe cualquier palabra para filtrar por descripción (Ej: "Jumbo", "Rappi", "Faustina").</li>
+      <li><strong>Filtros:</strong> Filtra por categoría, cuenta bancaria o solo duplicados posibles.</li>
+      <li><strong>Cambiar categoría:</strong> Toca el chip de categoría de cualquier movimiento. Puedes aplicar el cambio a todos los movimientos similares automáticamente.</li>
+      <li><strong>Duplicados:</strong> Marca el checkbox "Dups" para ver solo movimientos con posible duplicado. Revisa y elimina los que no correspondan.</li>
+      <li><strong>Agregar manual:</strong> Usa "+ Gasto" en el header para registrar un gasto en efectivo o sin cartola.</li>
+    </ul>
+    <div class="help-tip">💡 Al cambiar una categoría, activa "Aplicar a movimientos similares" para que la IA actualice todos los de ese comercio automáticamente.</div>
+  </div>
   <div class="filters">
     <input class="fi-s" placeholder="🔍 Buscar..." id="filterText" oninput="renderMovTable()" style="min-width:140px">
     <select class="fi-s" id="filterCat" onchange="renderMovTable()"><option value="">Todas las categorías</option></select>
@@ -840,6 +911,20 @@ input[type=file]{display:none}
 
 <!-- CAPTURA -->
 <div id="panel-captura" class="panel">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
+    <button class="help-btn" onclick="toggleHelp('help-captura')" title="Instrucciones">?</button>
+  </div>
+  <div class="help-box" id="help-captura">
+    <h4>📷 Cómo usar la Captura diaria</h4>
+    <ul>
+      <li><strong>Uso diario:</strong> En vez de esperar la cartola de fin de mes, saca pantallazos de tu app bancaria cada vez que quieras registrar movimientos.</li>
+      <li><strong>Selecciona tu banco:</strong> Toca el banco correspondiente antes de subir el pantallazo para una mejor clasificación.</li>
+      <li><strong>¿Qué capturar?:</strong> La pantalla de "Mis movimientos" o "Últimos movimientos" de tu app bancaria. Muestra varios movimientos a la vez.</li>
+      <li><strong>Duplicados:</strong> La app detecta automáticamente si un movimiento ya fue importado y lo desmarca.</li>
+      <li><strong>Revisar antes de importar:</strong> Siempre verás la lista de movimientos detectados antes de confirmar la importación.</li>
+    </ul>
+    <div class="help-tip">💡 Funciona mejor con pantallazos nítidos y con varios movimientos visibles. Evita capturas muy recortadas o con el brillo muy bajo.</div>
+  </div>
   <div class="notice n-i">📱 Sube un pantallazo — la IA extrae y clasifica los movimientos automáticamente.</div>
   <div class="cg">
     <div class="cc" onclick="triggerCapture('santander')"><div class="cc-i">🔴</div><div class="cc-n">Santander</div><div class="cc-d">Cuenta corriente</div></div>
@@ -853,6 +938,19 @@ input[type=file]{display:none}
 
 <!-- PROYECCIÓN -->
 <div id="panel-proyeccion" class="panel">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
+    <button class="help-btn" onclick="toggleHelp('help-proyeccion')" title="Instrucciones">?</button>
+  </div>
+  <div class="help-box" id="help-proyeccion">
+    <h4>📅 Cómo usar la Proyección</h4>
+    <ul>
+      <li><strong>Balance proyectado:</strong> Suma ingresos reales + provisiones esperadas, menos gastos reales + provisiones de gasto. Te dice si el mes cierra positivo o negativo.</li>
+      <li><strong>Provisiones:</strong> Son gastos o ingresos que sabes que van a ocurrir pero aún no están en tu cartola. Ej: dividendo, arriendo que recibirás, sueldo.</li>
+      <li><strong>Agregar provisión:</strong> Toca "+ Nueva" y registra el nombre, monto y fecha esperada. Puede ser recurrente (mensual) o puntual.</li>
+      <li><strong>Próximos vencimientos:</strong> Lista ordenada por fecha de todas las provisiones. Te avisa cuando se acercan (alerta de 5 días).</li>
+    </ul>
+    <div class="help-tip">💡 Agrega tu sueldo y arriendos como provisiones recurrentes mensuales. Así la proyección refleja tu flujo real aunque el dinero aún no haya llegado.</div>
+  </div>
   <div class="sg" id="projCards"></div>
   <div class="sec"><div class="sec-t">Flujo del mes actual</div></div>
   <div class="cb" id="cashBar"></div>
@@ -867,6 +965,20 @@ input[type=file]{display:none}
 
 <!-- IA TOOLS -->
 <div id="panel-ia" class="panel">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
+    <button class="help-btn" onclick="toggleHelp('help-ia')" title="Instrucciones">?</button>
+  </div>
+  <div class="help-box" id="help-ia">
+    <h4>🤖 Cómo usar las Herramientas IA</h4>
+    <ul>
+      <li><strong>Reclasificar:</strong> Toma todos los movimientos en "Otros" y los clasifica automáticamente. Primero usa reglas de keywords, luego Claude para los difíciles.</li>
+      <li><strong>Crear categoría con IA:</strong> Describe en palabras simples lo que quieres categorizar ("gastos del perro", "ropa deportiva") y la IA crea la categoría con su emoji y palabras clave.</li>
+      <li><strong>Crear categoría manual:</strong> Si prefieres control total, ingresa emoji, nombre y las palabras clave separadas por coma. Esas palabras se reconocerán automáticamente al importar futuras cartolas.</li>
+      <li><strong>Categorías activas:</strong> Vista de todas las categorías. Toca cualquiera para editar nombre, emoji o subcategorías. El ícono 🗑 la elimina (los movimientos pasan a "Otros").</li>
+      <li><strong>Eliminar duplicados:</strong> La IA analiza todos los movimientos y detecta los que son genuinamente duplicados (mismo monto, misma fecha, mismo comercio).</li>
+    </ul>
+    <div class="help-tip">💡 Las palabras clave que defines en una categoría se usan para clasificar automáticamente en futuras importaciones. Cuantas más keywords, mejor la clasificación.</div>
+  </div>
 
   <div class="ia-card">
     <div class="ia-card-header">
@@ -939,6 +1051,22 @@ input[type=file]{display:none}
 
 <!-- IMPORTAR -->
 <div id="panel-importar" class="panel">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
+    <button class="help-btn" onclick="toggleHelp('help-importar')" title="Instrucciones">?</button>
+  </div>
+  <div class="help-box" id="help-importar">
+    <h4>📂 Cómo importar cartolas</h4>
+    <ul>
+      <li><strong>Formatos aceptados:</strong> .xlsx, .xls, .csv (Excel) y .pdf (estado de cuenta TC Santander).</li>
+      <li><strong>Santander CC:</strong> App o web → "Mis cuentas" → "Movimientos" → "Cartolas" → Exportar Excel. También acepta "Últimos movimientos".</li>
+      <li><strong>BancoChile CC:</strong> App o web → "Mis movimientos" → Descargar Excel (cartola.xlsx).</li>
+      <li><strong>BancoChile TC:</strong> Acepta dos formatos: "Movimientos Facturados" (.xls) y "Saldo y Mov No Facturados" (.xls).</li>
+      <li><strong>TC Santander PDF:</strong> Descarga el "Estado de cuenta" en PDF desde el sitio web del banco.</li>
+      <li><strong>Duplicados:</strong> La app detecta movimientos ya importados y los marca en rojo. Por defecto quedan desmarcados para no duplicar.</li>
+      <li><strong>Seleccionar todo:</strong> Usa el checkbox de arriba para marcar o desmarcar todos los movimientos de una vez.</li>
+    </ul>
+    <div class="help-tip">💡 Puedes importar múltiples cartolas del mismo período sin problema. La detección de duplicados evita que se repitan los movimientos.</div>
+  </div>
   <div class="notice n-i">📂 Sube tu cartola Excel. La IA clasifica, detecta duplicados y los elimina automáticamente.</div>
   <div class="uz" id="xlsZone" onclick="document.getElementById('xlsInput').click()" ondragover="handleDrag(event,'xlsZone')" ondragleave="handleDragLeave('xlsZone')" ondrop="handleDrop(event,'xlsInput')">
     <div class="uz-ic">📄</div>
@@ -1107,6 +1235,13 @@ input[type=file]{display:none}
           </button>
         </div>
         <div id="driveMsg" style="margin-top:10px"></div>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)">
+          <div style="font-size:12px;font-weight:600;color:var(--tx);margin-bottom:8px">Zona de peligro</div>
+          <button class="btn btn-d btn-sm" onclick="resetAppData()" style="width:100%;justify-content:center">
+            🗑 Resetear todos mis datos
+          </button>
+          <div style="font-size:11px;color:var(--tx3);margin-top:6px">Borra todos los movimientos, categorías y configuración de este dispositivo. No afecta tu archivo en Drive.</div>
+        </div>
         <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)">
           <div style="font-size:11px;color:var(--tx3);line-height:1.6">
             • Los datos se guardan en tu Drive personal como <strong>finw-data.json</strong><br>
@@ -3171,6 +3306,58 @@ function driveSignIn(){
   };
   document.head.appendChild(sc);
 }
+function resetAppData() {
+  if (!confirm('⚠️ ¿Seguro que quieres borrar TODOS tus datos locales?\nEsta acción no se puede deshacer.')) return;
+  if (!confirm('Última confirmación: se borrarán ' + state.transactions.length + ' transacciones, categorías y configuración.\n\n¿Continuar?')) return;
+
+  // Keep drive connection info
+  const driveUser = state.driveUser;
+  const driveLastSave = state.driveLastSave;
+
+  // Reset state completely
+  state = {
+    transactions: [],
+    provisions: [],
+    catRules: {},
+    budget: {
+      alimentacion:800000, supermercado:300000, delivery:100000,
+      bares:200000, transporte:150000, salud:400000,
+      suscripciones:80000, servicios:120000, marketplace:150000,
+      transferencias:150000, otros:100000
+    },
+    alerts: {sw80:true, sw100:true, swDup:true, swProv:true, swAnom:true},
+    period: {type:'month', from:null, to:null},
+    currentMonth: '',
+    driveUser,
+    driveLastSave
+  };
+
+  localStorage.removeItem(SK);
+  save();
+
+  // Reset custom cats
+  Object.keys(CATS).forEach(k => {
+    if (!['vivienda','alimentacion','supermercado','delivery','alcohol','bares','transporte',
+          'salud','suscripciones','servicios','impuestos','honorarios','viajes','terpeno',
+          'marketplace','transferencias','negocio','comisiones','tc_deuda','extraordinario',
+          'ingresos','otros'].includes(k)) {
+      delete CATS[k];
+    }
+  });
+
+  initPeriod();
+  initCatSelects();
+  renderAll();
+  closeModal('driveModal');
+
+  // Show confirmation toast
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--s2);border:1px solid var(--bd2);border-radius:10px;padding:12px 20px;font-size:13px;color:var(--grn);z-index:400;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.4)';
+  toast.textContent = '✅ Datos reseteados. La app está lista para importar nuevas cartolas.';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
+
 function driveSignOut(){
   if(driveToken&&typeof google!=='undefined')google.accounts.oauth2.revoke(driveToken);
   driveToken=null;driveFileId=null;delete state.driveUser;save();updateDriveUI();
@@ -3223,6 +3410,12 @@ async function driveLoad(){
     }else{if(msg)msg.innerHTML='<div class="notice n-i">Archivo Drive vacío.</div>';}
   }catch(e){if(msg)msg.innerHTML='<div class="notice n-w">⚠ '+e.message+'</div>';}
 }
+function toggleHelp(id) {
+  const box = document.getElementById(id);
+  if (!box) return;
+  box.classList.toggle('open');
+}
+
 function toggleHide(){document.body.classList.toggle('hidden-mode');const b=document.getElementById('hideBtn');if(b)b.textContent=document.body.classList.contains('hidden-mode')?'🙈':'👁';}
 function showVersion(){const d=document.getElementById('versionToast');if(d){d.style.opacity='1';setTimeout(()=>d.style.opacity='0',2500);}}
 
