@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0c0c0e">
-<title>FinW v2.4</title>
-<meta name="app-version" content="v2.4" data-build="08/04/2026 02:50">
+<title>FinW v2.5</title>
+<meta name="app-version" content="v2.5" data-build="08/04/2026 02:50">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -666,6 +666,21 @@ input[type=file]{display:none}
 .empty-ic{font-size:34px;margin-bottom:10px;opacity:0.5}
 .empty-t{font-family:'Space Grotesk',sans-serif;font-size:14px;color:var(--tx2);margin-bottom:4px}
 
+/* ── IA CARDS ── */
+.ia-card{
+  background:var(--s1);border:1px solid var(--bd);
+  border-radius:var(--r2);padding:18px;margin-bottom:12px;
+}
+.ia-card-header{display:flex;align-items:flex-start;gap:14px}
+.ia-card-icon{
+  width:44px;height:44px;border-radius:14px;
+  background:var(--acc-bg);border:1px solid rgba(123,104,238,0.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+}
+.ia-card-title{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;margin-bottom:3px}
+.ia-card-desc{font-size:12px;color:var(--tx2);line-height:1.5}
+
 /* ── DESKTOP ── */
 @media(min-width:600px){
   .bnav{display:none}
@@ -681,7 +696,7 @@ input[type=file]{display:none}
 <body>
 
 <header class="hdr">
-  <div class="logo" onclick="showVersion()" style="cursor:pointer"><div class="logo-dot"></div>FinW <span style="font-size:10px;font-weight:400;color:var(--tx3);margin-left:4px;letter-spacing:0">v2.4</span></div>
+  <div class="logo" onclick="showVersion()" style="cursor:pointer"><div class="logo-dot"></div>FinW <span style="font-size:10px;font-weight:400;color:var(--tx3);margin-left:4px;letter-spacing:0">v2.5</span></div>
   <div class="hdr-r">
     <button class="hide-btn" onclick="toggleHide()" id="hideBtn" title="Ocultar saldos">👁</button>
     <button class="btn btn-sm btn-s" onclick="openProvModal()">+ Prov.</button>
@@ -691,7 +706,7 @@ input[type=file]{display:none}
 
 <!-- PERIOD SELECTOR BAR -->
 <div id="versionToast" style="position:fixed;top:60px;left:50%;transform:translateX(-50%);background:var(--s3);border:1px solid var(--bd2);border-radius:8px;padding:8px 16px;font-size:12px;color:var(--tx2);z-index:300;transition:opacity 0.3s;opacity:0;pointer-events:none;white-space:nowrap">
-  FinW v2.4 · Build 08/04/2026 02:50
+  FinW v2.5 · Build 08/04/2026 02:50
 </div>
 <div class="period-bar" id="periodBar">
   <span class="period-label">Período</span>
@@ -716,6 +731,7 @@ input[type=file]{display:none}
   <button class="dtab" onclick="showPanel('movimientos',this)">Movimientos</button>
   <button class="dtab" onclick="showPanel('captura',this)">Captura</button>
   <button class="dtab" onclick="showPanel('proyeccion',this)">Proyección</button>
+  <button class="dtab" onclick="showPanel('ia',this)">🤖 IA</button>
   <button class="dtab" onclick="showPanel('importar',this)">Importar</button>
 </div>
 
@@ -742,34 +758,14 @@ input[type=file]{display:none}
   <div id="alertBanners"></div>
   <div class="sec"><div class="sec-t">Presupuesto vs Gasto real</div><button class="sec-a" onclick="openBudgetEditor()">Editar →</button></div>
   <div id="budgetBars"></div>
-  <div class="sec"><div class="sec-t">Herramientas IA</div></div>
-  <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:4px">
-    <div class="card" style="padding:14px 16px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <div>
-          <div style="font-size:13px;font-weight:600;margin-bottom:2px">🔄 Reclasificar con IA</div>
-          <div style="font-size:11px;color:var(--tx3)" id="reclasifySubtitle">Repasa todos los movimientos y mejora las categorías automáticamente</div>
-        </div>
-        <button class="btn btn-p btn-sm" onclick="runMassReclassify()" id="reclassifyBtn">Ejecutar</button>
-      </div>
-      <div id="reclassifyProgress" style="display:none">
-        <div style="height:5px;background:var(--s3);border-radius:3px;overflow:hidden;margin-bottom:6px">
-          <div id="reclassifyBar" style="height:100%;background:var(--acc);border-radius:3px;transition:width 0.3s ease;width:0%"></div>
-        </div>
-        <div style="font-size:11px;color:var(--tx2)" id="reclassifyStatus">Procesando...</div>
-      </div>
-      <div id="reclassifyResult"></div>
+  <div class="sec"><div class="sec-t">Herramientas IA</div><button class="sec-a" onclick="showPanel('ia',null)">Ver todas →</button></div>
+  <div class="card" style="padding:14px 16px;display:flex;align-items:center;gap:14px" onclick="showPanel('ia',null)" style="cursor:pointer">
+    <div style="font-size:28px">🤖</div>
+    <div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:2px">Reclasificar · Crear categorías · Deduplicar</div>
+      <div style="font-size:11px;color:var(--tx2)">Toca para acceder a todas las herramientas de IA</div>
     </div>
-    <div class="card" style="padding:14px 16px">
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <div>
-          <div style="font-size:13px;font-weight:600;margin-bottom:2px">🗑 Eliminar duplicados con IA</div>
-          <div style="font-size:11px;color:var(--tx3)">Detecta y elimina movimientos duplicados inteligentemente</div>
-        </div>
-        <button class="btn btn-s btn-sm" onclick="runAIDedup()" id="dedupBtn">Analizar</button>
-      </div>
-      <div id="dedupResult" style="margin-top:10px"></div>
-    </div>
+    <div style="margin-left:auto;color:var(--tx3);font-size:18px">›</div>
   </div>
   <div class="sec"><div class="sec-t">Categorías</div><button class="sec-a" onclick="openCatEditor()">Editar →</button></div>
   <div id="catPreviewList" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px"></div>
@@ -866,6 +862,78 @@ input[type=file]{display:none}
   <div id="upcomingTimeline"></div>
 </div>
 
+<!-- IA TOOLS -->
+<div id="panel-ia" class="panel">
+
+  <div class="ia-card">
+    <div class="ia-card-header">
+      <div class="ia-card-icon">🔄</div>
+      <div>
+        <div class="ia-card-title">Reclasificar movimientos</div>
+        <div class="ia-card-desc" id="reclasifySubtitle">Revisa todos los movimientos en "Otros" y mejora sus categorías automáticamente</div>
+      </div>
+    </div>
+    <div id="reclassifyProgress" style="display:none;margin:10px 0">
+      <div style="height:6px;background:var(--s3);border-radius:3px;overflow:hidden;margin-bottom:6px">
+        <div id="reclassifyBar" style="height:100%;background:var(--acc);border-radius:3px;transition:width 0.3s;width:0%"></div>
+      </div>
+      <div style="font-size:11px;color:var(--tx2)" id="reclassifyStatus">Procesando...</div>
+    </div>
+    <div id="reclassifyResult"></div>
+    <button class="btn btn-p" onclick="runMassReclassify()" id="reclassifyBtn" style="width:100%;justify-content:center;margin-top:12px">🔄 Ejecutar reclasificación</button>
+  </div>
+
+  <div class="ia-card">
+    <div class="ia-card-header">
+      <div class="ia-card-icon">✨</div>
+      <div>
+        <div class="ia-card-title">Crear categoría con IA</div>
+        <div class="ia-card-desc">Descríbela y la IA la crea con nombre, emoji y keywords automáticas</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <input class="fi" id="aiCatInput" placeholder='Ej: "gastos de mi perro" o "ropa deportiva"' style="flex:1;font-size:13px">
+      <button class="btn btn-p btn-sm" onclick="createCatWithAI()" style="flex-shrink:0">Crear</button>
+    </div>
+    <div id="aiCatResult" style="margin-top:10px"></div>
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)">
+      <div style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--tx)">O crea una categoría manualmente:</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <input class="fi" id="manCatEmoji" placeholder="🏷" style="width:52px;text-align:center;font-size:20px;padding:6px">
+        <input class="fi" id="manCatName" placeholder="Nombre de la categoría" style="flex:1">
+      </div>
+      <input class="fi" id="manCatKeywords" placeholder="Keywords: gym, fitness, entrenamiento" style="width:100%;margin-bottom:8px;font-size:12px">
+      <button class="btn btn-s btn-sm" onclick="createManualCat()" style="width:100%;justify-content:center">+ Agregar categoría</button>
+      <div id="manCatResult" style="margin-top:8px"></div>
+    </div>
+  </div>
+
+  <div class="ia-card">
+    <div class="ia-card-header">
+      <div class="ia-card-icon">🏷</div>
+      <div>
+        <div class="ia-card-title">Categorías activas</div>
+        <div class="ia-card-desc">Toca cualquiera para editar nombre o emoji</div>
+      </div>
+    </div>
+    <div id="iaCatGrid" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px"></div>
+  </div>
+
+  <div class="ia-card">
+    <div class="ia-card-header">
+      <div class="ia-card-icon">🗑</div>
+      <div>
+        <div class="ia-card-title">Eliminar duplicados</div>
+        <div class="ia-card-desc">Detecta y elimina movimientos duplicados inteligentemente</div>
+      </div>
+    </div>
+    <div id="dedupResult" style="margin-top:10px"></div>
+    <button class="btn btn-s" onclick="runAIDedup()" id="dedupBtn" style="width:100%;justify-content:center;margin-top:12px">🗑 Analizar duplicados</button>
+  </div>
+
+</div>
+
+
 <!-- IMPORTAR -->
 <div id="panel-importar" class="panel">
   <div class="notice n-i">📂 Sube tu cartola Excel. La IA clasifica, detecta duplicados y los elimina automáticamente.</div>
@@ -884,9 +952,9 @@ input[type=file]{display:none}
 <nav class="bnav" id="bnav">
   <button class="bni active" onclick="showPanel('resumen',this,true)" data-p="resumen"><div class="bni-ic">📊</div><span>Resumen</span></button>
   <button class="bni" onclick="showPanel('alertas',this,true)" data-p="alertas"><div class="bni-ic">🔔</div><span>Alertas</span></button>
-  <button class="bni" onclick="showPanel('analisis',this,true)" data-p="analisis"><div class="bni-ic">📈</div><span>Análisis</span></button>
-  <button class="bni" onclick="showPanel('movimientos',this,true)" data-p="movimientos"><div class="bni-ic">💳</div><span>Movimientos</span></button>
-  <button class="bni" onclick="showPanel('captura',this,true)" data-p="captura"><div class="bni-ic">📷</div><span>Captura</span></button>
+  <button class="bni" onclick="showPanel('ia',this,true)" data-p="ia"><div class="bni-ic">🤖</div><span>IA</span></button>
+  <button class="bni" onclick="showPanel('movimientos',this,true)" data-p="movimientos"><div class="bni-ic">💳</div><span>Movs</span></button>
+  <button class="bni" onclick="showPanel('importar',this,true)" data-p="importar"><div class="bni-ic">📂</div><span>Importar</span></button>
 </nav>
 
 <!-- MODALS -->
@@ -1131,6 +1199,96 @@ function detectDuplicates(txs){
 // ══════════════════════════════════════════════════════════
 // AI DEDUP — asks Claude which ones to remove
 // ══════════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════════
+// IA CATEGORY CREATOR
+// ══════════════════════════════════════════════════════════
+async function createCatWithAI() {
+  const input = document.getElementById('aiCatInput');
+  const result = document.getElementById('aiCatResult');
+  const desc = input.value.trim();
+  if (!desc) return;
+
+  result.innerHTML = '<div class="ait"><div class="spin"></div>La IA está creando la categoría...</div>';
+
+  try {
+    const existingCats = Object.entries(CATS).map(([k,v]) => k + ': ' + v.l).join(', ');
+    const prompt = 'Eres un asistente financiero chileno. El usuario quiere crear una nueva categoría de gastos para: "' + desc + '"\n\nCategorías existentes: ' + existingCats + '\n\nCrea una categoría nueva (o sugiere una existente si ya cubre el caso). Responde SOLO con JSON:\n{"key":"nombre_clave_sin_espacios","emoji":"🏷","label":"Nombre legible","keywords":["keyword1","keyword2","keyword3","keyword4","keyword5"],"useExisting":false,"existingKey":""}\nSi ya existe una categoría adecuada, pon useExisting:true y existingKey con la clave. Sin texto adicional.';
+
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({model: 'claude-sonnet-4-20250514', max_tokens: 300, messages: [{role:'user', content: prompt}]})
+    });
+    const data = await res.json();
+    const parsed = JSON.parse((data.content?.[0]?.text || '{}').replace(/```json|```/g,'').trim());
+
+    if (parsed.useExisting && parsed.existingKey && CATS[parsed.existingKey]) {
+      const m = CATS[parsed.existingKey];
+      result.innerHTML = '<div class="notice n-i">💡 Ya existe la categoría <strong>' + m.e + ' ' + m.l + '</strong> que cubre este caso. ¿Quieres usarla o crear una nueva de todas formas?</div>';
+      return;
+    }
+
+    if (!parsed.key || !parsed.label) throw new Error('Respuesta inválida');
+
+    // Add to CATS
+    const key = parsed.key.replace(/[^a-z0-9_]/g,'').slice(0,20);
+    CATS[key] = {l: parsed.label, e: parsed.emoji || '🏷', c: 'cc-otr', subs: ['General'], keywords: parsed.keywords || []};
+
+    // Add keywords to classifier
+    if (!state.customCats) state.customCats = {};
+    state.customCats[key] = {...CATS[key]};
+    // Add to catRules
+    if (!state.catRules) state.catRules = {};
+    (parsed.keywords || []).forEach(kw => { state.catRules[kw.toLowerCase()] = key; });
+    save();
+    initCatSelects();
+    renderIACatGrid();
+
+    result.innerHTML = '<div class="notice n-o">✓ Categoría <strong>' + parsed.emoji + ' ' + parsed.label + '</strong> creada con ' + (parsed.keywords||[]).length + ' keywords automáticas</div>'
+      + '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">'
+      + (parsed.keywords||[]).map(k => '<span style="font-size:11px;background:var(--s3);padding:2px 8px;border-radius:20px;color:var(--tx2)">' + k + '</span>').join('')
+      + '</div>';
+    input.value = '';
+
+  } catch(e) {
+    result.innerHTML = '<div class="notice n-w">⚠ ' + e.message + ' — La API key puede no estar configurada en Vercel.</div>';
+  }
+}
+
+function createManualCat() {
+  const emoji = document.getElementById('manCatEmoji').value.trim() || '🏷';
+  const name = document.getElementById('manCatName').value.trim();
+  const kwRaw = document.getElementById('manCatKeywords').value.trim();
+  const result = document.getElementById('manCatResult');
+
+  if (!name) { result.innerHTML = '<div class="notice n-w">⚠ Escribe un nombre para la categoría</div>'; return; }
+
+  const key = 'custom_' + name.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,15) + '_' + Date.now().toString(36).slice(-3);
+  const keywords = kwRaw ? kwRaw.split(',').map(k=>k.trim().toLowerCase()).filter(Boolean) : [];
+
+  CATS[key] = {l: name, e: emoji, c: 'cc-otr', subs: ['General'], keywords};
+  if (!state.customCats) state.customCats = {};
+  state.customCats[key] = {...CATS[key]};
+  if (!state.catRules) state.catRules = {};
+  keywords.forEach(kw => { state.catRules[kw] = key; });
+  save();
+  initCatSelects();
+  renderIACatGrid();
+
+  result.innerHTML = '<div class="notice n-o">✓ Categoría ' + emoji + ' ' + name + ' creada' + (keywords.length ? ' con keywords: ' + keywords.join(', ') : '') + '</div>';
+  document.getElementById('manCatEmoji').value = '';
+  document.getElementById('manCatName').value = '';
+  document.getElementById('manCatKeywords').value = '';
+}
+
+function renderIACatGrid() {
+  const el = document.getElementById('iaCatGrid');
+  if (!el) return;
+  el.innerHTML = Object.entries(CATS).map(([k,v]) =>
+    '<span class="cat-chip ' + v.c + '" onclick="openCatEditor()" style="cursor:pointer" title="Editar categorías">' + v.e + ' ' + v.l + '</span>'
+  ).join('');
+}
 
 // ══════════════════════════════════════════════════════════
 // RECLASIFICACIÓN MASIVA CON IA
@@ -1628,7 +1786,7 @@ Sé específico con los montos. Formato: párrafos cortos, sin markdown complejo
 // ══════════════════════════════════════════════════════════
 // RENDER ALL
 // ══════════════════════════════════════════════════════════
-function renderAll(){renderSummary();renderAlerts();renderAnalysis();renderMovTable();renderProjection()}
+function renderAll(){renderSummary();renderAlerts();renderAnalysis();renderMovTable();renderProjection();renderIACatGrid()}
 
 function renderSummary(){
   const allTxs=state.transactions||[];
